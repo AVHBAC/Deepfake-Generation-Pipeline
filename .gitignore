@@ -1,0 +1,13 @@
+# Things to ignore from models/xtts-finetune-cli
+# We first ignore everything
+models/xtts-finetune-cli/*
+
+# But we want to keep these
+!models/xtts-finetune-cli/main.py
+!models/xtts-finetune-cli/README.md
+!models/xtts-finetune-cli/environment.yml
+!models/xtts-finetune-cli/utils/
+!models/xtts-finetune-cli/utils/formatter.py
+!models/xtts-finetune-cli/utils/gpt_train.py
+!models/xtts-finetune-cli/utils/tokenizer.py
+!models/xtts-finetune-cli/utils/xtts_header.py
