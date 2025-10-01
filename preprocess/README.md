@@ -6,7 +6,7 @@ This section allows you to take unclean data and ensure that it is clean prior t
 
 ### 1. Install Dependencies
 
-You will need a [Hugging Face Token](https://huggingface.co/settings/tokens) with all permisions under `Repositories`, `Inference`, `Webhooks`, and `Collections`.
+You will need a [Hugging Face Token](https://huggingface.co/settings/tokens) with all permission under `Repositories`, `Inference`, `Webhooks`, and `Collections`.
 ```bash
 conda env create -f environment.yml
 huggingface-cli login # You will be asked for your token here, put it in.

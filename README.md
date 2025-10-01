@@ -1,3 +1,7 @@
-# Deepfake-Generation-Pipeline
+# Deepfake Generation Pipeline
 
-This is the deepfake generation pipeline for AVHBAC.
+This is an all incluse look at how we do work around Audio deepfakes. It includes:
+
+- Preprocessing
+- Finetunning / Inferencing
+- Scoring
