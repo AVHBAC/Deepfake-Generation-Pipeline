@@ -1,3 +1,14 @@
+# Things to ignore from preprocess
+# We first ignore everything
+preprocess/*
+
+# But we want to keep these
+!preprocess/environment.yml
+!preprocess/main.py
+!preprocess/multispeaker_remover.py
+!preprocess/pyannote_diarize.py
+!preprocess/README.md
+
 # Things to ignore from models/xtts-finetune-cli
 # We first ignore everything
 models/xtts-finetune-cli/*
