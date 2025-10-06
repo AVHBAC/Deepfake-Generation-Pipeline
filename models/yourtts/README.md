@@ -5,11 +5,14 @@ A command-line pipeline for running inference using a yourtts model.
 ## Usage
 
 ## 1. Install Dependencies
+
+Make sure that you have ffmpeg installed. You are encourage to solve CUDA issues on your own, online assistance does exist.
+
 ```bash
-conda create -n yourtts python=3.9
-git clone https://github.com/Edresson/Coqui-TTS
-pip install -q -e TTS/
-pip install -q torchaudio==0.9.0 pydub ffmpeg-normalize==1.21.0
+conda create -n yourtts_env python=3.10 -y
+conda activate yourtts_env
+python -m pip install --upgrade pip
+pip install TTS soundfile ffmpeg-normalize
 ```
 
 ## 2. Run main.py
