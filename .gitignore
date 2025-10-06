@@ -45,3 +45,7 @@ scores/wespeaker/*
 !scores/wespeaker/environment.yml
 !scores/wespeaker/pipe.sh
 !scores/wespeaker/README.md
+!scores/wespeaker/gpu/
+!scores/wespeaker/gpu/compute.py
+!scores/wespeaker/gpu/pipe.sh
+!scores/wespeaker/gpu/README.md
