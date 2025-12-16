@@ -26,8 +26,9 @@ def preprocess_dataset(audio_path, audio_folder_path, language, whisper_model, o
     if not audio_files:
         raise ValueError("No audio files found!")
 
-    device = "cuda" if torch.cuda.is_available() else "cpu"
-    compute_type = "float16" if torch.cuda.is_available() else "float32"
+    # Use CPU for Whisper ASR (cuDNN 9.x required for GPU, not always available)
+    device = "cpu"
+    compute_type = "int8"
 
     asr_model = WhisperModel(whisper_model, device=device, compute_type=compute_type)
     train_meta, eval_meta, audio_total_size = format_audio_list(

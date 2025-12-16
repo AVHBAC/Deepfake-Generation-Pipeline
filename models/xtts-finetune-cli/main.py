@@ -3,8 +3,20 @@ import shutil
 import torch
 import tempfile
 import torchaudio
+import random
+import numpy as np
 from pathlib import Path
 import argparse
+
+# Set random seeds for reproducibility
+SEED = 42
+random.seed(SEED)
+np.random.seed(SEED)
+torch.manual_seed(SEED)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(SEED)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 # Import functions from utils
 from utils.xtts_header import (

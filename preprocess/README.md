@@ -1,21 +1,30 @@
-# Data Preprocesing
+# Data Preprocessing
 
-This section allows you to take unclean data and ensure that it is clean prior to input it into the models.
+Converts raw audio to clean, single-speaker WAV files using pyannote speaker diarization.
+
+## Setup
+
+Requires a [Hugging Face token](https://huggingface.co/settings/tokens) with read access.
+
+```bash
+conda env create -f environment.yml
+conda activate preprocess
+pip install git+https://github.com/pyannote/pyannote-audio.git
+huggingface-cli login
+```
+
+Accept model conditions at huggingface.co on first run.
 
 ## Usage
 
-### 1. Install Dependencies
-
-You will need a [Hugging Face Token](https://huggingface.co/settings/tokens) with all permission under `Repositories`, `Inference`, `Webhooks`, and `Collections`.
 ```bash
-conda env create -f environment.yml
-huggingface-cli login # You will be asked for your token here, put it in.
+python main.py /path/to/input/audio/ /path/to/output/
 ```
 
-### 2. Run main.py
+## Output
 
-The first time your run this you will be asked to go to [Hugging Face](https://huggingface.co/) and accept the conditions of the models. You must do this or they will not work.
-
-```bash
-main.py /path/to/input/auidio/ /path/to/output/audio/
-```
+For each input file:
+- `{name}.wav` - Converted audio
+- `{name}-diarization.csv` - Speaker segments
+- `{name}-summary.txt` - Diarization stats
+- `{name}-clean.wav` - Dominant speaker only

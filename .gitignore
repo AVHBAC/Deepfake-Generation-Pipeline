@@ -23,6 +23,7 @@ models/xtts-finetune-cli/utils/__pycache__/
 !models/xtts-finetune-cli/README.md
 !models/xtts-finetune-cli/environment.yml
 !models/xtts-finetune-cli/utils/
+!models/xtts-finetune-cli/utils/__init__.py
 !models/xtts-finetune-cli/utils/formatter.py
 !models/xtts-finetune-cli/utils/gpt_train.py
 !models/xtts-finetune-cli/utils/tokenizer.py
@@ -35,6 +36,7 @@ models/yourtts/*
 # But we want to keep these
 !models/yourtts/main.py
 !models/yourtts/README.md
+!models/yourtts/environment.yml
 
 # Things to ignore from scores/wespeaker
 # We first ignore everything

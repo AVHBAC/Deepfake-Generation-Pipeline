@@ -1,11 +1,45 @@
 # Deepfake Generation Pipeline
 
-This is an all incluse look at how we do work around Audio deepfakes. It includes:
+End-to-end pipeline for audio deepfake generation: preprocessing, TTS fine-tuning/inference, and speaker verification scoring.
 
-- Preprocessing
-- Finetunning / Inferencing
-- Scoring
+## Structure
 
-### Workspace Conditions
+```
+├── preprocess/          # Speaker diarization and audio cleanup
+├── models/
+│   ├── xtts-finetune-cli/  # XTTS fine-tuning
+│   └── yourtts/            # YourTTS inference
+└── scores/wespeaker/       # Speaker verification scoring
+```
 
-All of the code was run on Ubuntu 22.04.5 on on the 5.15.0-157-generic Kernel. CUDA has been either 12.8 or 13.0 as it updated.
+## Requirements
+
+- Ubuntu 22.04+ (tested on 5.15.0-157 kernel)
+- CUDA 12.x
+- Conda/Miniconda
+- ffmpeg
+
+## Quick Start
+
+Each module has its own environment. See the README in each directory for setup instructions.
+
+```bash
+# Example: Preprocessing
+cd preprocess
+conda env create -f environment.yml
+conda activate preprocess
+python main.py /path/to/input /path/to/output
+```
+
+## Modules
+
+| Module | Purpose |
+|--------|---------|
+| `preprocess/` | Converts audio to WAV, runs pyannote diarization, removes non-dominant speakers |
+| `models/xtts-finetune-cli/` | Fine-tunes XTTS on target speaker, generates deepfakes |
+| `models/yourtts/` | Zero-shot voice cloning with YourTTS |
+| `scores/wespeaker/` | Speaker verification scoring with WeSpeaker |
+
+## License
+
+MIT

@@ -1,23 +1,16 @@
 import os
 import gc
+import torch
 import torchaudio
 import pandas
 from faster_whisper import WhisperModel
 from glob import glob
-
 from tqdm import tqdm
-
 from TTS.tts.layers.xtts.tokenizer import multilingual_cleaners
-# Add support for JA train
-# from utils.tokenizer import multilingual_cleaners
 
-import torch
-import torchaudio
-# torch.set_num_threads(1)
-
-
-torch.set_num_threads(16)
-import os
+# Use available CPU cores, capped at 8 for stability
+NUM_THREADS = min(os.cpu_count() or 4, 8)
+torch.set_num_threads(NUM_THREADS)
 
 audio_types = (".wav", ".mp3", ".flac")
 

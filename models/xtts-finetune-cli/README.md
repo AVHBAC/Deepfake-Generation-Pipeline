@@ -1,31 +1,39 @@
-# XTTS CLI Pipeline
+# XTTS Fine-tuning Pipeline
 
-A command-line pipeline for fine-tuning [XTTS](https://github.com/coqui-ai/TTS) models, running inference, and packaging the optimized model. Heavily written from [xtts-finetune-webui](https://github.com/daswer123/xtts-finetune-webui)
+Fine-tune XTTS models on target speaker audio and generate deepfakes.
 
-This project provides:
-- **Step 0:** Resample and adjust input audio
-- **Step 1:** Create a dataset from input audio
-- **Step 2:** Train the XTTS model
-    - Edit epochs, batch size, etc. here.
-- **Step 2.5:** Optimize the trained model
-- **Step 3:** Load the optimized model
-- **Step 4:** Run inference (generate speech from text)
+Based on [xtts-finetune-webui](https://github.com/daswer123/xtts-finetune-webui).
 
-## Usage
-
-### 1. Install dependencies
+## Setup
 
 ```bash
 conda env create -f environment.yml
-pip install torch==2.1.1+cu118 torchaudio==2.1.1+cu118 --index-url https://download.pytorch.org/whl/cu118
+conda activate xtts-env
 ```
 
-### 2. Run main.py
+## Usage
 
 ```bash
-python3 main.py --out_dir path/to/output/dir path/to/input.wav
+python main.py path/to/input.wav --out_dir path/to/output
 ```
 
-### 3. Results
+## Pipeline Steps
 
-This script current produces 3 deepfake audio files. It also reproduces the reference audio and provides resampled audio if it needs to be.
+1. Resample input to 22050Hz mono
+2. Create dataset with Whisper transcription
+3. Train XTTS (6 epochs default)
+4. Optimize model
+5. Generate 3 deepfake samples
+
+## Output
+
+- `resampled.wav` - Preprocessed input
+- `reference.wav` - Reference for cloning
+- `audio0.wav`, `audio1.wav`, `audio2.wav` - Generated deepfakes
+
+## Parameters
+
+Edit `main.py` to adjust:
+- `num_epochs` (default: 6)
+- `batch_size` (default: 2)
+- `max_audio_length` (default: 11s)

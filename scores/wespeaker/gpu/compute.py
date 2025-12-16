@@ -136,9 +136,9 @@ def main():
         gc.collect()
         torch.cuda.empty_cache()
         torch.cuda.ipc_collect()
-    except:
+    except (RuntimeError, torch.cuda.OutOfMemoryError) as e:
         device = "cpu"
-        print(f"Failsafe going to cpu.")
+        print(f"GPU failed ({e}), falling back to CPU.")
         model = load_wespeaker_model(lang="english", device=device)
 
         # Extract embeddings

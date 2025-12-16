@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-
-import os
 import subprocess
 import argparse
 from pathlib import Path
@@ -29,11 +27,13 @@ def process_directory(input_dir, output_dir):
             # 1. Convert to wav
             try:
                 tqdm.write(f"[INFO] Converting {file_path.name} to wav...")
-                os.system(
-                    f"ffmpeg -y -i '{file_path}' '{out_path}/{rel_path_no_ext}.wav' "
-                    f">/dev/null 2>&1"
+                subprocess.run(
+                    ["ffmpeg", "-y", "-i", str(file_path), str(out_path / f"{rel_path_no_ext}.wav")],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    check=True
                 )
-            except Exception as e:
+            except subprocess.CalledProcessError as e:
                 tqdm.write(f"[WARN] ffmpeg failed for {file_path}: {e}")
 
             # 2. Diarization
