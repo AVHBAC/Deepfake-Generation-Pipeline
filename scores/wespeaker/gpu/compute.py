@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import sys
 import csv
+import argparse
 import wespeaker
 import torch
 
@@ -13,42 +14,42 @@ def clean_path(path, base):
 
 
 def main():
-    if len(sys.argv) < 5:
-        print("Usage: python3 compute.py path/to/be/cleaned output.csv reference.wav audio1.wav audio2.wav ...")
-        sys.exit(1)
-
-    base_path = sys.argv[1]
-    output_csv = sys.argv[2]
-    reference_path = sys.argv[3]
-    comparison_paths = sys.argv[4:]
+    parser = argparse.ArgumentParser(description="WeSpeaker similarity scoring (GPU)")
+    parser.add_argument("cleanpath", help="Base path to strip from output paths")
+    parser.add_argument("outfile", help="Output CSV file")
+    parser.add_argument("reference", help="Reference audio file")
+    parser.add_argument("audios", nargs="+", help="Audio files to compare")
+    parser.add_argument("--model", default="english",
+                        help="Model name or local path (default: english)")
+    args = parser.parse_args()
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"Using device: {device}")
 
-    print("Loading model...")
-    model = wespeaker.load_model("english")
+    print(f"Loading model: {args.model}")
+    model = wespeaker.load_model(args.model)
     model.set_device(device)
 
     rows = []
 
-    print(f"Reference file: {reference_path}")
-    for path in comparison_paths:
+    print(f"Reference file: {args.reference}")
+    for path in args.audios:
         try:
-            similarity = model.compute_similarity(reference_path, path)
+            similarity = model.compute_similarity(args.reference, path)
             print(f"Similarity with {path}: {similarity}")
             rows.append([
-                clean_path(reference_path, base_path),
-                clean_path(path, base_path),
+                clean_path(args.reference, args.cleanpath),
+                clean_path(path, args.cleanpath),
                 similarity
             ])
         except Exception as e:
             print(f"Error processing {path}: {e}")
 
-    with open(output_csv, "a", newline="") as f:
+    with open(args.outfile, "a", newline="") as f:
         writer = csv.writer(f)
         writer.writerows(rows)
 
-    print(f"\nResults written to {output_csv}")
+    print(f"\nResults written to {args.outfile}")
 
 
 if __name__ == "__main__":
