@@ -11,7 +11,12 @@ import soundfile as sf
 from TTS.api import TTS
 from TTS.utils.audio import AudioProcessor
 
-random.seed(42)
+# Set random seeds for reproducibility
+SEED = 42
+random.seed(SEED)
+torch.manual_seed(SEED)
+if torch.cuda.is_available():
+    torch.cuda.manual_seed_all(SEED)
 
 def normalize_audio(infile, outfile, target_db=-27, sample_rate=16000):
     """Normalize and resample audio with ffmpeg-normalize"""

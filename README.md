@@ -15,7 +15,7 @@ End-to-end pipeline for audio deepfake generation: preprocessing, TTS fine-tunin
 ## Requirements
 
 - Ubuntu 22.04+ (tested on 5.15.0-157 kernel)
-- CUDA 12.x
+- CUDA 11.8+ (XTTS module requires CUDA 11.8 for PyTorch compatibility)
 - Conda/Miniconda
 - ffmpeg
 

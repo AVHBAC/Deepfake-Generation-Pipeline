@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import os
+import sys
 import subprocess
 import argparse
 from pathlib import Path
@@ -59,9 +61,10 @@ def process_directory(input_dir, output_dir):
             # 3. Speaker removal
             try:
                     tqdm.write(f"[INFO] Removing non-dominant speakers for {file_path.name}...")
+                    script_dir = os.path.dirname(os.path.abspath(__file__))
                     subprocess.run(
                         [
-                            "python", "multispeaker_remover.py",
+                            sys.executable, os.path.join(script_dir, "multispeaker_remover.py"),
                             "--audio", f"{out_path}/{rel_path_no_ext}.wav",
                             "--csv", f"{out_path}/{rel_path_no_ext}-diarization.csv",
                             "--keep-top-k", "1",
