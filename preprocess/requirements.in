@@ -1,0 +1,15 @@
+# Direct dependencies of the preprocess module. requirements-lock.txt is generated
+# from this file with every package resolved to the newest release available on
+# 2025-09-30 (see the header of the lock file for the exact command).
+torch==2.8.0
+torchaudio==2.8.0
+pyannote-audio==3.4.0
+# pyannote-audio 3.4.0 still passes use_auth_token, which huggingface_hub 1.0 removed
+huggingface_hub<1.0
+# lightning 2.6 loads checkpoints with weights_only=True and rejects pyannote 3.x weights
+lightning<2.6
+pytorch-lightning<2.6
+pandas
+pydub
+soundfile
+tqdm

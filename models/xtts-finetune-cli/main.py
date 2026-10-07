@@ -1,7 +1,6 @@
 import os
 import shutil
 import torch
-import tempfile
 import torchaudio
 import random
 import numpy as np
@@ -25,7 +24,6 @@ from utils.xtts_header import (
     optimize_model,
     load_model,
     run_tts,
-    get_model_zip,
 )
 
 def main():
@@ -126,7 +124,7 @@ def main():
     print("Optimized model at:", optimized_path)
 
     print("Step 3 - Loading model...")
-    model = load_model(
+    load_model(
         f"{model_dir}/ready/model.pth",
         f"{model_dir}/ready/config.json",
         f"{model_dir}/ready/vocab.json",
@@ -145,8 +143,8 @@ def main():
         waveform, sr = torchaudio.load(output_audio)
         if sr != 22050:
             waveform = torchaudio.transforms.Resample(sr, 22050)(waveform)
-            torchaudio.save(final_path, waveform, 22050)
-        #shutil.move(output_audio, final_path)
+        torchaudio.save(str(final_path), waveform, 22050)
+        os.remove(output_audio)  # temporary file written by run_tts
         print("Generated speech at:", final_path)
 
     # --- Copy reference and resampled audio into results ---

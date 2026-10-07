@@ -1,21 +1,20 @@
-# Wespeaker for Scoring on GPU
+# WeSpeaker Scoring on GPU
 
-This section allows you to score your preprocessed data, it is intended to be used only with generated data, though can be modified. Will primary towards running on GPU, falls back to cpu.
+Same interface and output format as the CPU scorer in the parent directory; the model is moved to CUDA when a GPU is available and falls back to CPU otherwise.
 
-## Usage
+## Setup
 
-### 1. Install Dependencies
+Use the environment from the parent directory:
 
 ```bash
 conda env create -f ../environment.yml
-pip install git+https://github.com/wenet-e2e/wespeaker.git
-chmod +x pipe.sh # Linux use only
+conda activate wespeaker
 ```
 
-### Run pipe.sh
+## Usage
 
 ```bash
-./pipe.sh path/to/be/cleaned output.csv /full/path/to/files
+./pipe.sh <cleanpath> output.csv /full/path/to/files [--model ~/.wespeaker/english]
 ```
 
-If you are sharing your scoring data it is recommended to set `path/to/be/clean` to `/home/<your-user>/remaining/path` as to obfuscate yourself from the actually scoring.
+If you share the results file, set `<cleanpath>` to the local prefix you want removed from the paths, for example `/home/<your-user>/data`.

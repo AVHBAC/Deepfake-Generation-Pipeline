@@ -1,0 +1,17 @@
+# Direct dependencies of the WeSpeaker module. requirements-lock.txt is generated
+# from this file with every package resolved to the newest release available on
+# 2025-09-30 (see the header of the lock file for the exact command).
+# torchaudio >= 2.9 removed set_audio_backend, which WeSpeaker's s3prl dependency still calls.
+torch==2.8.0
+torchaudio==2.8.0
+# wespeaker -> hdbscan requires numpy<2
+numpy<2
+tqdm
+# Imported by wespeaker but not declared by its setup.py:
+onnxruntime
+pyyaml
+requests
+s3prl
+# Last WeSpeaker commit whose GPU path works; later commits dropped the device
+# transfer in extract_embedding_from_pcm (upstream commit 6423d3a, 2025-12-26).
+wespeaker @ git+https://github.com/wenet-e2e/wespeaker.git@f59df4fa3351a6be57493e83d466f42825b8d568

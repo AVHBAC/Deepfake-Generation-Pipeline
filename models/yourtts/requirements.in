@@ -1,0 +1,11 @@
+# Direct dependencies of the YourTTS module. requirements-lock.txt is generated
+# from this file with every package resolved to the newest release available on
+# 2025-09-30 (see the header of the lock file for the exact command).
+torch==2.8.0
+torchaudio==2.8.0
+TTS==0.22.0
+transformers==4.36.0
+# TTS 0.22.0 -> librosa 0.10.0 imports pkg_resources, removed in setuptools 82
+setuptools<82
+soundfile
+ffmpeg-normalize

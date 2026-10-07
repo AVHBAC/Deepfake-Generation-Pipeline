@@ -8,6 +8,8 @@ preprocess/*
 
 # But we want to keep these
 !preprocess/environment.yml
+!preprocess/requirements.in
+!preprocess/requirements-lock.txt
 !preprocess/main.py
 !preprocess/multispeaker_remover.py
 !preprocess/pyannote_diarize.py
@@ -22,6 +24,8 @@ models/xtts-finetune-cli/utils/__pycache__/
 !models/xtts-finetune-cli/main.py
 !models/xtts-finetune-cli/README.md
 !models/xtts-finetune-cli/environment.yml
+!models/xtts-finetune-cli/requirements.in
+!models/xtts-finetune-cli/requirements-lock.txt
 !models/xtts-finetune-cli/utils/
 !models/xtts-finetune-cli/utils/__init__.py
 !models/xtts-finetune-cli/utils/formatter.py
@@ -37,6 +41,8 @@ models/yourtts/*
 !models/yourtts/main.py
 !models/yourtts/README.md
 !models/yourtts/environment.yml
+!models/yourtts/requirements.in
+!models/yourtts/requirements-lock.txt
 
 # Things to ignore from scores/wespeaker
 # We first ignore everything
@@ -45,6 +51,8 @@ scores/wespeaker/*
 # But we want to keep these
 !scores/wespeaker/compare.py
 !scores/wespeaker/environment.yml
+!scores/wespeaker/requirements.in
+!scores/wespeaker/requirements-lock.txt
 !scores/wespeaker/pipe.sh
 !scores/wespeaker/README.md
 !scores/wespeaker/gpu/

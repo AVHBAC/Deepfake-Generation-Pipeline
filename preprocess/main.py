@@ -1,95 +1,132 @@
 #!/usr/bin/env python3
-import os
-import sys
-import subprocess
+"""Walk an input directory, convert every audio file to WAV, run pyannote
+speaker diarization, and keep only the dominant speaker.
+
+For an input file <input_dir>/<sub>/<name>.<ext> the outputs are written to
+<output_dir>/<sub>/<name>/:
+    <name>.wav                 converted audio
+    <name>-diarization.csv     speaker segments
+    <name>-summary.txt         diarization statistics
+    <name>-clean.wav           dominant speaker only
+
+Exit status is 0 only if every input file produced all four outputs.
+Otherwise it is 1 and a per-file failure summary is printed on stderr.
+"""
 import argparse
+import os
+import subprocess
+import sys
 from pathlib import Path
+
 from tqdm import tqdm
 
-from pyannote_diarize import diarization, analyze
+from pyannote_diarize import analyze, diarization
 
-def process_directory(input_dir, output_dir):
-    # Collect all files first
-    all_files = []
-    for root, dirs, files in os.walk(input_dir):
-        for file in files:
-            all_files.append(Path(root) / file)
+AUDIO_EXTENSIONS = {
+    ".wav", ".mp3", ".flac", ".m4a", ".aac", ".ogg", ".opus", ".wma",
+    ".mp4", ".mkv", ".mov", ".avi", ".webm",
+}
 
-    # Progress bar
-    for file_path in tqdm(all_files, desc="Processing files", unit="file"):
+
+def process_file(file_path: Path, input_dir: Path, output_dir: Path) -> None:
+    """Process one input file. Raises on any failure."""
+    rel_no_ext = file_path.relative_to(input_dir).with_suffix("")
+    out_dir = output_dir / rel_no_ext
+    out_dir.mkdir(parents=True, exist_ok=True)
+    stem = rel_no_ext.name
+
+    wav_path = out_dir / f"{stem}.wav"
+    csv_path = out_dir / f"{stem}-diarization.csv"
+    summary_path = out_dir / f"{stem}-summary.txt"
+    clean_path = out_dir / f"{stem}-clean.wav"
+
+    # 1. Convert to WAV
+    tqdm.write(f"[INFO] Converting {file_path.name} to wav...")
+    ffmpeg = subprocess.run(
+        ["ffmpeg", "-y", "-loglevel", "error", "-i", str(file_path), str(wav_path)],
+        capture_output=True, text=True,
+    )
+    if ffmpeg.returncode != 0:
+        raise RuntimeError(f"ffmpeg failed (rc={ffmpeg.returncode}): {ffmpeg.stderr.strip()}")
+
+    # 2. Diarization
+    tqdm.write(f"[INFO] Running diarization on {file_path.name}...")
+    segments, _ = diarization(str(wav_path))
+    analysis, df = analyze(segments)
+    if df is None:
+        raise RuntimeError("diarization returned no speech segments")
+    df.to_csv(csv_path, index=False)
+    with open(summary_path, "w") as f:
+        f.write("PYANNOTE DIARIZATION SUMMARY\n")
+        f.write("=" * 50 + "\n\n")
+        f.write(f"Total Speakers: {analysis['total_speakers']}\n")
+        f.write(f"Speaker Labels: {analysis['speaker_list']}\n")
+        f.write(f"Total Segments: {analysis['total_segments']}\n")
+        f.write(f"Total Duration: {analysis['total_duration']:.2f} seconds\n\n")
+        f.write("Speaker Statistics:\n")
+        f.write(str(analysis["speaker_stats"]))
+
+    # 3. Keep the dominant speaker only
+    tqdm.write(f"[INFO] Removing non-dominant speakers for {file_path.name}...")
+    script = Path(__file__).resolve().parent / "multispeaker_remover.py"
+    remover = subprocess.run(
+        [
+            sys.executable, str(script),
+            "--audio", str(wav_path),
+            "--csv", str(csv_path),
+            "--keep-top-k", "1",
+            "--out", str(clean_path),
+        ],
+        capture_output=True, text=True,
+    )
+    if remover.returncode != 0:
+        raise RuntimeError(
+            f"multispeaker_remover.py failed (rc={remover.returncode}): "
+            f"{remover.stderr.strip()[-2000:]}"
+        )
+    if not clean_path.is_file():
+        raise RuntimeError("multispeaker_remover.py exited 0 but wrote no output")
+    tqdm.write(f"[INFO] Wrote {clean_path}")
+
+
+def process_directory(input_dir: Path, output_dir: Path) -> int:
+    audio_files, skipped = [], []
+    for root, _, files in os.walk(input_dir):
+        for name in files:
+            path = Path(root) / name
+            (audio_files if path.suffix.lower() in AUDIO_EXTENSIONS else skipped).append(path)
+    audio_files.sort()
+
+    for path in skipped:
+        tqdm.write(f"[SKIP] {path} (unsupported extension)")
+    if not audio_files:
+        print(f"[ERROR] No audio files found under {input_dir}", file=sys.stderr)
+        return 1
+
+    failures = []
+    for file_path in tqdm(audio_files, desc="Processing files", unit="file"):
         try:
-            rel_path = file_path.relative_to(input_dir)
-            rel_path_no_ext = rel_path.with_suffix('')
-            out_path = Path(output_dir) / rel_path_no_ext
+            process_file(file_path, input_dir, output_dir)
+        except Exception as e:  # noqa: BLE001 - record and continue with the next file
+            tqdm.write(f"[ERROR] {file_path}: {e}")
+            failures.append((file_path, str(e)))
 
-            # Make sure output subdir exists
-            out_path.parent.mkdir(parents=True, exist_ok=True)
-            out_path.mkdir(exist_ok=True)
+    ok = len(audio_files) - len(failures)
+    print(f"\nProcessed {len(audio_files)} file(s): {ok} succeeded, {len(failures)} failed.")
+    for path, msg in failures:
+        first_line = msg.splitlines()[0] if msg else ""
+        print(f"  FAILED {path}: {first_line}", file=sys.stderr)
+    return 1 if failures else 0
 
-            # 1. Convert to wav
-            try:
-                tqdm.write(f"[INFO] Converting {file_path.name} to wav...")
-                subprocess.run(
-                    ["ffmpeg", "-y", "-i", str(file_path), str(out_path / f"{rel_path_no_ext}.wav")],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    check=True
-                )
-            except subprocess.CalledProcessError as e:
-                tqdm.write(f"[WARN] ffmpeg failed for {file_path}: {e}")
-
-            # 2. Diarization
-            try:
-                tqdm.write(f"[INFO] Running diarization on {file_path.name}...")
-                results, diarization_obj = diarization(f"{out_path}/{rel_path_no_ext}.wav")
-                analysis, results_df = analyze(results)
-
-                results_df.to_csv(f"{out_path}/{rel_path_no_ext}-diarization.csv", index=False)
-
-                with open(f"{out_path}/{rel_path_no_ext}-summary.txt", 'w') as f:
-                    f.write("PYANNOTE DIARIZATION SUMMARY\n")
-                    f.write("="*50 + "\n\n")
-                    f.write(f"Total Speakers: {analysis['total_speakers']}\n")
-                    f.write(f"Speaker Labels: {analysis['speaker_list']}\n")
-                    f.write(f"Total Segments: {analysis['total_segments']}\n")
-                    f.write(f"Total Duration: {analysis['total_duration']:.2f} seconds\n\n")
-                    f.write("Speaker Statistics:\n")
-                    f.write(str(analysis['speaker_stats']))
-            except Exception as e:
-                tqdm.write(f"[WARN] Diarization failed for {file_path}: {e}")
-
-            # 3. Speaker removal
-            try:
-                    tqdm.write(f"[INFO] Removing non-dominant speakers for {file_path.name}...")
-                    script_dir = os.path.dirname(os.path.abspath(__file__))
-                    subprocess.run(
-                        [
-                            sys.executable, os.path.join(script_dir, "multispeaker_remover.py"),
-                            "--audio", f"{out_path}/{rel_path_no_ext}.wav",
-                            "--csv", f"{out_path}/{rel_path_no_ext}-diarization.csv",
-                            "--keep-top-k", "1",
-                            "--out", f"{out_path}/{rel_path_no_ext}-clean.wav"
-                        ],
-                        #stdout=subprocess.DEVNULL,   # discard stdout
-                        #stderr=subprocess.DEVNULL    # discard stderr
-                        capture_output=True,
-                        text=True
-                    )
-                    tqdm.write(f"[INFO] Removed non-dominant speakers for {out_path}/{rel_path_no_ext}-clean.wav...")
-            except Exception as e:
-                tqdm.write(f"[WARN] Multispeaker remover failed for {file_path}: {e}")
-
-        except Exception as e:
-            tqdm.write(f"[ERROR] Unexpected failure with file {file_path.name}: {e}")
-            continue
 
 def main():
-    parser = argparse.ArgumentParser(description="Walk input dir and process files.")
+    parser = argparse.ArgumentParser(
+        description="Convert, diarize and clean every audio file under a directory.")
     parser.add_argument("input_dir", type=str, help="Path to input directory")
     parser.add_argument("output_dir", type=str, help="Path to output directory")
     args = parser.parse_args()
+    sys.exit(process_directory(Path(args.input_dir).resolve(), Path(args.output_dir).resolve()))
 
-    process_directory(Path(args.input_dir), Path(args.output_dir))
 
 if __name__ == "__main__":
     main()

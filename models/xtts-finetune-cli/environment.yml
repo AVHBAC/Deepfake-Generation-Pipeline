@@ -1,18 +1,13 @@
 name: xtts-env
 channels:
-  - pytorch
-  - nvidia
   - conda-forge
   - defaults
 dependencies:
   - python=3.10
-  - cudatoolkit=11.8
   - pip
   - pip:
-      - torch==2.2.0
-      - torchaudio==2.2.0
-      - TTS==0.22.0
-      - transformers==4.36.0
-      - faster-whisper
-      - pandas
-      - tqdm
+      # Every package is pinned in requirements-lock.txt, resolved against the
+      # PyPI state of 2025-09-30 and verified from a clean build on 2026-10-07
+      # (Ubuntu 22.04, RTX 4080 16 GB, driver 580.173.02). Direct dependencies and
+      # the reasons for their constraints are in requirements.in.
+      - -r requirements-lock.txt
