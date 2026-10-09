@@ -1,6 +1,6 @@
 # Deepfake Generation Pipeline
 
-An end-to-end pipeline for **audio deepfake generation and scoring**, built to produce extended-length synthetic speech of a target speaker from their real recordings:
+An end-to-end pipeline for **audio deepfake generation and scoring**, built to produce synthetic speech of a target speaker from their real recordings:
 
 - **Preprocessing** with pyannote speaker diarization, keeping only the dominant speaker
 - **XTTS v2 fine-tuning** on the target speaker followed by synthesis
