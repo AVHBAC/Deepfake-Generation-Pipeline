@@ -129,6 +129,23 @@ Check these terms before using generated audio outside research.
 
 ---
 
+## Datasets
+
+The pipeline was developed on, and run over, two speech collections recorded at Clarkson University under the CITeR project. Both are published on IEEE DataPort (login required to download the files; ELAD-SVDSR additionally requires signing the EULA posted on its record).
+
+| Dataset | IEEE DataPort | DOI |
+|---------|---------------|-----|
+| ELAD-SVDSR: Extended-Length Audio Dataset for Synthetic Voice Detection and Speaker Recognition | [record page](https://ieee-dataport.org/documents/extended-length-audio-dataset-synthetic-voice-detection-and-speaker-recognition-elad) | 10.21227/ab5w-0c23 |
+| SPEAD: Speech Phoneme-Enriched Audio Dataset | [record page](https://ieee-dataport.org/documents/speech-phoneme-enriched-audio-dataset-spead) | [10.21227/f48c-2934](https://doi.org/10.21227/f48c-2934) |
+
+**ELAD-SVDSR** contains roughly 45-minute recordings from 36 participants, each reading different newspaper articles in controlled sessions captured with five different high-quality microphones, together with synthetic voices generated from 20 of the subjects with open-source and commercial tools. The XTTS stage of this pipeline needs at least 2 minutes of speech per speaker, which these extended-length recordings provide with a wide margin. Authors: R. Vijaykumar, A. Ahmed, J. Parker, A. Collins, D. K. Pendyala and M. H. Imtiaz; funded by CITeR and NSF grant 1650503. A dataset descriptor is available as [arXiv:2510.00218](https://arxiv.org/abs/2510.00218).
+
+**SPEAD** contains high-quality recordings from 100 speakers of diverse linguistic backgrounds reading phoneme-rich material (narrations, dialogues and tongue twisters) designed to cover the full set of English phonemes, plus a contrasting subset of 18 participants reading low-phoneme-density passages. The recordings are anonymized with their detailed metadata preserved, and the dataset is intended for speaker recognition, speech enhancement and audio deepfake detection research. Authors: Y. Sukhdeve, A. Ahmed, D. Pendyala and M. Imtiaz; funded by CITeR.
+
+Place the cleaned `*-clean.wav` files from either collection under the input directory described in [Usage](#usage) to reproduce the project's deepfake generation and scoring runs.
+
+---
+
 ## Notes and Limitations
 
 - XTTS fine-tuning requires at least 2 minutes of speech per speaker and writes about 2 GB of base models into the current working directory (`base_models/`) plus about 13 GB of checkpoints into `--model_dir`, which is recreated on every run.
